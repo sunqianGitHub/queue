@@ -23,11 +23,11 @@ int 			rear;
 
 #define Queue_Size				5
 
-void initQueue(QUEUE * Q);
-void enQueue(QUEUE * Q, p_datatype value);
-bool isemptyQueue(QUEUE * Q);
-bool is_fullQueue(QUEUE * Q);
-void deQueue(QUEUE * Q, p_datatype value);
+void InitQueue(QUEUE * Q);
+void EnQueue(QUEUE * Q, p_datatype value);
+bool isEmptyQueue(QUEUE * Q);
+bool isFullQueue(QUEUE * Q);
+void DeQueue(QUEUE * Q, p_datatype value);
 void traverseQueue(QUEUE * Q);
 
 /***************************************** 主函数测试入口 ********************************************/
@@ -35,36 +35,36 @@ int main(void)
 {
 	datatype val;
 	QUEUE queue;
-	initQueue(&queue);
+	InitQueue(&queue);
 	int i;
 	for(i=1;i<10;i++)
 	{
 		memcpy(val.buf,"test",5);
-		enQueue(&queue, &val);
+		EnQueue(&queue, &val);
 	}
-	enQueue(&queue, &val);
-	enQueue(&queue, &val);
-	enQueue(&queue, &val);
-	enQueue(&queue, &val);
-	enQueue(&queue, &val);
-	enQueue(&queue, &val);
+	EnQueue(&queue, &val);
+	EnQueue(&queue, &val);
+	EnQueue(&queue, &val);
+	EnQueue(&queue, &val);
+	EnQueue(&queue, &val);
+	EnQueue(&queue, &val);
 
 	traverseQueue(&queue);
-	deQueue(&queue, &val);
-	deQueue(&queue, &val);
+	DeQueue(&queue, &val);
+	DeQueue(&queue, &val);
 
 	traverseQueue(&queue);
-	enQueue(&queue, &val);
-	enQueue(&queue, &val);
-	enQueue(&queue, &val);
-	deQueue(&queue, &val);
-	deQueue(&queue, &val);
-	deQueue(&queue, &val);
-	deQueue(&queue, &val);
-	deQueue(&queue, &val);
-	deQueue(&queue, &val);
-	deQueue(&queue, &val);
-	deQueue(&queue, &val);
+	EnQueue(&queue, &val);
+	EnQueue(&queue, &val);
+	EnQueue(&queue, &val);
+	DeQueue(&queue, &val);
+	DeQueue(&queue, &val);
+	DeQueue(&queue, &val);
+	DeQueue(&queue, &val);
+	DeQueue(&queue, &val);
+	DeQueue(&queue, &val);
+	DeQueue(&queue, &val);
+	DeQueue(&queue, &val);
 	traverseQueue(&queue);
 
 	return 0;
@@ -72,12 +72,12 @@ int main(void)
 
 
 /**************************************初始化一个空的循环队列 ******************************************/
-void initQueue(QUEUE * Q)
+void InitQueue(QUEUE * Q)
 {
 	Q->QBase = (p_datatype)calloc(Queue_Size,sizeof(datatype));
 	if(Q->QBase == NULL)
 	{
-		printf("内存分配失败！\n");
+		printf("calloc ERROR\n");
 		exit(-1);
 	}
 
@@ -86,42 +86,41 @@ void initQueue(QUEUE * Q)
 
 
 /***************插入一个新元素  注：插入前需要先判断该队列是否已满，避免覆盖有效数据******************/
-void enQueue(QUEUE * Q, p_datatype value)
+void EnQueue(QUEUE * Q, p_datatype value)
 {
 
-	if(is_fullQueue(Q))
+	if(isFullQueue(Q))
 	{
-		printf("循环队列已满，拒绝插入%s！\n", value->buf);
+		printf("EnQueue ERROR，cant insert %s\n", value->buf);
 	}
 	else
 	{
 		memcpy(Q->QBase[Q->rear].buf, value->buf,sizeof(value->buf));
 		Q->rear = (Q->rear + 1) % Queue_Size;
-		printf("\n %s 入队 \n", value->buf);
+		printf(" %s insert \n", value->buf);
 	}
 }
 
 
 /**************  删除一个元素,并通过指针返回该数  注:删除前要判断该队列是否为空。*******
 	************/
-void deQueue(QUEUE * Q, p_datatype value)
+void DeQueue(QUEUE * Q, p_datatype value)
 {
-	if(isemptyQueue(Q))
+	if(isEmptyQueue(Q))
 	{
-		printf("循环队列已空！");
+		printf("EmptyQueue\n");
 	}
 	else
 	{
-		*value = Q->QBase[Q->front];
 		memcpy(value->buf,Q->QBase[Q->front].buf,sizeof(Q->QBase[Q->front].buf));
-	printf("\n %s 出队 \n", value->buf);
+		printf(" %s DeQueue \n", value->buf);
 		Q->front = (Q->front + 1) % Queue_Size;
 	}
 }
 
 
 /************************************	  判断循环队列是否为空 ************************************/
-bool isemptyQueue(QUEUE * Q)
+bool isEmptyQueue(QUEUE * Q)
 {
 	if(Q->front == Q->rear)
 	{
@@ -135,7 +134,7 @@ bool isemptyQueue(QUEUE * Q)
 
 
 /************************************	 判断循环队列是否已满 ************************************/
-bool is_fullQueue(QUEUE * Q)
+bool isFullQueue(QUEUE * Q)
 {
 	if((Q->rear + 1) % Queue_Size == Q->front)
 	{
@@ -151,20 +150,21 @@ bool is_fullQueue(QUEUE * Q)
 /*************************************	   遍历循环队列中的各元素 *************************************/
 void traverseQueue(QUEUE * Q)
 {
-	if(isemptyQueue(Q))
+	if(isEmptyQueue(Q))
 	{
 		printf("循环队列为空!\n");
+		printf("EmptyQueue\n");
 		return;
 	}
 
-	printf("当前循环队列 :\n");
-	printf("front是%d,rear是%d :\n", Q->front, Q->rear);
+	printf("round-robin queue:\n");
+	printf("front is %d,rear is %d :\n", Q->front, Q->rear);
 
 	int tail = Q->front;
 
 	while(tail != Q->rear)
 	{
-		printf(" %s ", Q->QBase[tail].buf);
+		printf(" %s \n", Q->QBase[tail].buf);
 		tail = (tail + 1) % Queue_Size;
 	}
 }
