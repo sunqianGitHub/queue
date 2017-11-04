@@ -36,15 +36,15 @@ int main(void)
 	datatype val;
 	QUEUE queue;
 	InitQueue(&queue);
-	int i;
-	for(i=1;i<10;i++)
-	{
-		memcpy(val.buf,"test",5);
-		EnQueue(&queue, &val);
-	}
+	sprintf(val.buf,"45");
 	EnQueue(&queue, &val);
+	sprintf(val.buf,"46");
 	EnQueue(&queue, &val);
+	sprintf(val.buf,"47");
 	EnQueue(&queue, &val);
+	sprintf(val.buf,"48");
+	EnQueue(&queue, &val);
+	sprintf(val.buf,"49");
 	EnQueue(&queue, &val);
 	EnQueue(&queue, &val);
 	EnQueue(&queue, &val);
@@ -54,9 +54,13 @@ int main(void)
 	DeQueue(&queue, &val);
 
 	traverseQueue(&queue);
+	sprintf(val.buf,"680000");
 	EnQueue(&queue, &val);
+	sprintf(val.buf,"690000");
 	EnQueue(&queue, &val);
+	sprintf(val.buf,"700000");
 	EnQueue(&queue, &val);
+	sprintf(val.buf,"710000");
 	DeQueue(&queue, &val);
 	DeQueue(&queue, &val);
 	DeQueue(&queue, &val);
@@ -102,8 +106,7 @@ void EnQueue(QUEUE * Q, p_datatype value)
 }
 
 
-/**************  删除一个元素,并通过指针返回该数  注:删除前要判断该队列是否为空。*******
-	************/
+/**************  删除一个元素,并通过指针返回该数据:删除前要判断该队列是否为空。*******************/
 void DeQueue(QUEUE * Q, p_datatype value)
 {
 	if(isEmptyQueue(Q))
@@ -152,7 +155,6 @@ void traverseQueue(QUEUE * Q)
 {
 	if(isEmptyQueue(Q))
 	{
-		printf("循环队列为空!\n");
 		printf("EmptyQueue\n");
 		return;
 	}
