@@ -7,6 +7,15 @@ typedef enum{
 	false,
 	true
 }bool;
+typedef unsigned int QueueRet;
+#define ESUCCESS	0x7ff0	
+#define EFAILED		0x7FF1
+
+#define ENULL 	0x8ff1
+#define EFULL	0x8ff2
+#define EEMPTY	0x8ff3
+
+
 typedef struct{
 	char buf[256];
 }datatype,*p_datatype;
@@ -23,12 +32,20 @@ int 			rear;
 
 #define Queue_Size				5
 
-void InitQueue(QUEUE * Q);
-void EnQueue(QUEUE * Q, p_datatype value);
+QueueRet InitQueue(QUEUE * Q);
+QueueRet EnQueue(QUEUE * Q, p_datatype value);
 bool isEmptyQueue(QUEUE * Q);
 bool isFullQueue(QUEUE * Q);
-void DeQueue(QUEUE * Q, p_datatype value);
-void traverseQueue(QUEUE * Q);
+QueueRet DeQueue(QUEUE * Q, p_datatype value);
+QueueRet traverseQueue(QUEUE * Q);
+QueueRet Destroy_Queue(QUEUE * Q);
+
+#define CHECK_POINTER(p1) \
+	if(NULL == (p1)) \
+    { \
+        printf("Null Pointer: p1(%p)\n", p1); \
+        return ENULL; \
+    } 
 
 /***************************************** 主函数测试入口 ********************************************/
 int main(void)
@@ -50,10 +67,16 @@ int main(void)
 	EnQueue(&queue, &val);
 
 	traverseQueue(&queue);
+
+	
 	DeQueue(&queue, &val);
 	DeQueue(&queue, &val);
 
 	traverseQueue(&queue);
+
+	
+	Destroy_Queue(&queue);
+	
 	sprintf(val.buf,"680000");
 	EnQueue(&queue, &val);
 	sprintf(val.buf,"690000");
@@ -69,6 +92,7 @@ int main(void)
 	DeQueue(&queue, &val);
 	DeQueue(&queue, &val);
 	DeQueue(&queue, &val);
+	Destroy_Queue(&queue);
 	traverseQueue(&queue);
 
 	return 0;
@@ -76,55 +100,59 @@ int main(void)
 
 
 /**************************************初始化一个空的循环队列 ******************************************/
-void InitQueue(QUEUE * Q)
+QueueRet InitQueue(QUEUE * Q)
 {
 	Q->QBase = (p_datatype)calloc(Queue_Size,sizeof(datatype));
-	if(Q->QBase == NULL)
+	if(NULL == Q->QBase)
 	{
 		printf("calloc ERROR\n");
-		exit(-1);
+		return EFAILED;
 	}
 
 	Q->front = Q->rear = 0;
+	return ESUCCESS;
 }
 
 
 /***************插入一个新元素  注：插入前需要先判断该队列是否已满，避免覆盖有效数据******************/
-void EnQueue(QUEUE * Q, p_datatype value)
+QueueRet EnQueue(QUEUE * Q, p_datatype value)
 {
+	CHECK_POINTER(Q->QBase);
 
 	if(isFullQueue(Q))
 	{
 		printf("EnQueue ERROR，cant insert %s\n", value->buf);
+		return EFULL;
 	}
-	else
-	{
-		memcpy(Q->QBase[Q->rear].buf, value->buf,sizeof(value->buf));
-		Q->rear = (Q->rear + 1) % Queue_Size;
-		printf(" %s insert \n", value->buf);
-	}
+	memcpy(Q->QBase[Q->rear].buf, value->buf,sizeof(value->buf));
+	Q->rear = (Q->rear + 1) % Queue_Size;
+	printf(" %s insert \n", value->buf);
+	return ESUCCESS;
 }
 
 
 /**************  删除一个元素,并通过指针返回该数据:删除前要判断该队列是否为空。*******************/
-void DeQueue(QUEUE * Q, p_datatype value)
+QueueRet DeQueue(QUEUE * Q, p_datatype value)
 {
+	
+	CHECK_POINTER(Q->QBase);
 	if(isEmptyQueue(Q))
 	{
 		printf("EmptyQueue\n");
+		return EEMPTY;
 	}
-	else
-	{
-		memcpy(value->buf,Q->QBase[Q->front].buf,sizeof(Q->QBase[Q->front].buf));
-		printf(" %s DeQueue \n", value->buf);
-		Q->front = (Q->front + 1) % Queue_Size;
-	}
+	memcpy(value->buf,Q->QBase[Q->front].buf,sizeof(Q->QBase[Q->front].buf));
+	printf(" %s DeQueue \n", value->buf);
+	Q->front = (Q->front + 1) % Queue_Size;
+	return ESUCCESS;
 }
 
 
 /************************************	  判断循环队列是否为空 ************************************/
-bool isEmptyQueue(QUEUE * Q)
+QueueRet isEmptyQueue(QUEUE * Q)
 {
+	
+	CHECK_POINTER(Q->QBase);
 	if(Q->front == Q->rear)
 	{
 		return true;
@@ -137,8 +165,10 @@ bool isEmptyQueue(QUEUE * Q)
 
 
 /************************************	 判断循环队列是否已满 ************************************/
-bool isFullQueue(QUEUE * Q)
+QueueRet isFullQueue(QUEUE * Q)
 {
+	
+	CHECK_POINTER(Q->QBase);
 	if((Q->rear + 1) % Queue_Size == Q->front)
 	{
 		return true;
@@ -151,12 +181,14 @@ bool isFullQueue(QUEUE * Q)
 
 
 /*************************************	   遍历循环队列中的各元素 *************************************/
-void traverseQueue(QUEUE * Q)
+QueueRet traverseQueue(QUEUE * Q)
 {
+	
+	CHECK_POINTER(Q->QBase);
 	if(isEmptyQueue(Q))
 	{
 		printf("EmptyQueue\n");
-		return;
+		return EEMPTY;
 	}
 
 	printf("round-robin queue:\n");
@@ -170,5 +202,12 @@ void traverseQueue(QUEUE * Q)
 		tail = (tail + 1) % Queue_Size;
 	}
 }
-
+QueueRet Destroy_Queue(QUEUE * Q)
+{
+	
+	CHECK_POINTER(Q->QBase);
+	free(Q->QBase);
+	Q->QBase = NULL;
+	return ESUCCESS;
+}
 
